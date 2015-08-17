@@ -14,9 +14,6 @@ import requests
 from lxml import html
 
 
-with open('appsid', 'r') as aid:
-    urls = [i for i in aid.read().split('\n')]
-
 def get_review(url):
     url = 'https://play.google.com/store/apps/details?id='+url+'&hl=en'
     try:
@@ -50,17 +47,29 @@ def get_review(url):
             if len(rev) > 250:
                 continue
             neg.write(rev + '\n')
-
     return
 
+try:
+    with open('appsid', 'r') as aid:
+        urls = [i for i in aid.read().split('\n')]
+
+except IOError:
+    print('Error while opening App\'s ID file. make sure that\
+    you have a file named "appsid" in the irectory of this\
+    scrip and you have right permissions to access file. \nExiting...')
 
 if __name__ == '__main__':
-    try:
-        with open('positive.txt', 'w') as pos, open('negative.txt', 'w') as neg:
-            length = len(urls)
-            for url in urls:
-                get_review(url)
-                print(str(length) + ' apps left')
-                length -= 1
-    except IOError as e:
-        print 'Operation failed: %s' % e.strerror
+    #run it till there are ids in appsid file
+    with open('positive.txt', 'w') as pos, open('negative.txt', 'w') as neg:
+        length = len(urls)
+        while length:
+            try:
+                for url in urls:
+                    get_review(url)
+                    print(str(length) + ' apps left')
+                    length -= 1
+            except IOError as e:
+                print('Operation Failed Error...')
+                pass
+
+    print('Complete (Y)')
